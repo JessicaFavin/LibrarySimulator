@@ -1,5 +1,9 @@
-public enum CategorieClient {
+import java.io.Serializable;
+
+public enum CategorieClient implements Serializable {
+
 	ETUDIANT(20, 0.0, 0.5, 1.5), PARTICULIER(15, 10.0, 1.0, 1.0), ENTREPRISE(15, 30.0, 1.0, 1.0);
+
 	private int empruntsMax;
 	private Double cotisation;
 	private Double coefTarif;

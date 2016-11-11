@@ -1,8 +1,9 @@
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.io.Serializable;
 
-public class FicheEmprunt{
+public class FicheEmprunt implements Serializable {
 
     private Client      client;
     private Document    document;

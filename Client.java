@@ -1,8 +1,9 @@
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.io.Serializable;
 
-public class Client {
+public class Client implements Serializable {
 	private String nom;
 	private String prenom;
 	private Adresse adresse;
@@ -20,8 +21,8 @@ public class Client {
 		this.categorie=categorie;
 		Calendar calendar = Calendar.getInstance();
         dateInscription = calendar.getTime();
-		calendar.add(calendar.YEAR,1);
-		calendar.add(calendar.DAY_OF_MONTH,-1);
+		calendar.add(Calendar.YEAR,1);
+		calendar.add(Calendar.DAY_OF_MONTH,-1);
 		dateRenouvellement = calendar.getTime();
 	}
 
@@ -98,7 +99,7 @@ public class Client {
 
 	public String toString(){
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("d/M/Y");
-		return prenom + " " + nom + " " +", Adresse: "+ adresse + "\n" + "Inscripton: "+dateFormatter.format(dateInscription) + " Renouvellement: " + dateFormatter.format(dateRenouvellement) + "\nEmprunts: " + nbEmprunts + ", Retards: " + nbRetards;
+		return prenom + " " + nom + " " +", Adresse: "+ adresse + "\n" + "Inscripton: "+dateFormatter.format(dateInscription) + " Renouvellement: " + dateFormatter.format(dateRenouvellement) + "\nEmprunts: " + nbEmprunts + ", Retards: " + nbRetards+"\n";
 
 	}
 

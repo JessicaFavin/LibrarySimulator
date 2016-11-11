@@ -18,8 +18,29 @@ public class Main{
         Adresse adresse = new Adresse(12, "rue", "des pommiers", 75012, "Paris", "France");
         Client client = new Client("Smith","John", adresse, CategorieClient.ETUDIANT);
         FicheEmprunt fiche = new FicheEmprunt(client, dvd);
-        System.out.println(client);
-        System.out.println(fiche);
+        //System.out.println(client);
+        //System.out.println(fiche);
+
+        Mediatheque med = new Mediatheque("Lennon");
+        med.addDocument(cd);
+        med.addDocument(dvd);
+        med.addDocument(livre);
+        med.addFicheEmprunt(fiche);
+        med.addClient(client);
+        try{
+            boolean res;
+            System.out.println(med);
+            Audio cd2 = new Audio("Aventine", "Agnes Obel", 2013, "ZGEJ634", "Classique", "Musique", "Classique", 37);
+            med.addDocument(cd2);
+            res = med.sauvegardeMediatheque();
+            System.out.println("Sauvegarde : "+res+"\n");
+            Mediatheque med2 = new Mediatheque("Lennon bis");
+            res = med2.initMediatheque("MEDIATHEQUE_Lennon");
+            System.out.println("Init : "+res+"\n");
+            System.out.println(med2);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
 
         /*
         //---------------------------TEST CALENDAR--------------------------------------
