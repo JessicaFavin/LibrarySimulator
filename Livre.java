@@ -1,3 +1,4 @@
+
 public class Livre extends Document {
 
     //durée de l'emprunt en jours
@@ -21,7 +22,7 @@ public class Livre extends Document {
     }
 
     /**
-     * retourne le nombre de pages du livre
+     * @return le nombre de pages du livre
      */
     public int getNbPages(){
         return this.nbPages;
@@ -40,10 +41,12 @@ public class Livre extends Document {
         return str;
     }
 
+    @Override
     public int getDureeEmprunt(){
         return this.DUREE_EMPRUNT;
     }
 
+    @Override
     public int getTarif(){
         return this.TARIF;
     }

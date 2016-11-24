@@ -1,3 +1,4 @@
+
 public class Video extends Document {
 
     //durée de l'emprunt en jours
@@ -21,7 +22,7 @@ public class Video extends Document {
     }
 
     /**
-     * retourne la durée du document video en minutes
+     * @return la durée du document video en minutes
      */
     public double getDureeDVD(){
         return this.dureeDVD;
@@ -40,10 +41,12 @@ public class Video extends Document {
         return str;
     }
 
+    @Override
     public int getDureeEmprunt(){
         return this.DUREE_EMPRUNT;
     }
 
+    @Override
     public int getTarif(){
         return this.TARIF;
     }

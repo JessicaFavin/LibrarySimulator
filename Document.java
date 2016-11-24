@@ -1,3 +1,4 @@
+
 import java.io.Serializable;
 
 public abstract class Document implements Serializable {
@@ -10,20 +11,6 @@ public abstract class Document implements Serializable {
     protected String  salle;
     protected String  rayon;
     protected boolean emprunte;
-
-
-    /*
-    public Document(String titre, String auteur, int annee, String isbn, String genre, String salle, String rayon){
-        this.titre      = titre;
-        this.auteur     = auteur;
-        this.annee      = annee;
-        this.isbn       = isbn;
-        this.genre      = genre;
-        this.salle      = salle;
-        this.rayon      = rayon;
-        this.emprunte   = false;
-    }
-    */
 
     public String getTitre(){
         return this.titre;

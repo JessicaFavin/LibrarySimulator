@@ -1,3 +1,4 @@
+
 public class Audio extends Document {
 
     //durée de l'emprunt en jours
@@ -21,7 +22,8 @@ public class Audio extends Document {
     }
 
     /**
-     * retourne la durée du document audio en minutes
+     *
+     * @return durée du document audio en minutes
      */
     public double getDureeCD(){
         return this.dureeCD;
@@ -40,10 +42,12 @@ public class Audio extends Document {
         return str;
     }
 
+    @Override
     public int getDureeEmprunt(){
         return this.DUREE_EMPRUNT;
     }
 
+    @Override
     public int getTarif(){
         return this.TARIF;
     }

@@ -1,3 +1,4 @@
+
 import java.io.Serializable;
 
 public enum CategorieClient implements Serializable {
@@ -17,6 +18,8 @@ public enum CategorieClient implements Serializable {
 		this.coefDuree=coefDuree;
 
 	}
+
+        @Override
 	public String toString(){
 		return this.name()+" "+empruntsMax+" "+cotisation+" "+coefTarif+" "+coefDuree;
 	}

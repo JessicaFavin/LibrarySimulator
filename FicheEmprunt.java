@@ -1,3 +1,4 @@
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -5,9 +6,9 @@ import java.io.Serializable;
 
 public class FicheEmprunt implements Serializable {
 
-    private Client      client;
-    private Document    document;
-    private Date        dateDebut;
+    private final Client      client;
+    private final Document    document;
+    private final Date        dateDebut;
     private Date        dateFin;
     private Date        dateRappel;
     private int         prolongation;
@@ -18,14 +19,15 @@ public class FicheEmprunt implements Serializable {
         this.document = document;
         Calendar calendar = Calendar.getInstance();
         this.dateDebut = calendar.getTime();
-        calendar.add(calendar.DAY_OF_MONTH,document.getDureeEmprunt());
+        calendar.add(Calendar.DAY_OF_MONTH,document.getDureeEmprunt());
         this.dateFin = calendar.getTime();
-        calendar.add(calendar.DAY_OF_MONTH, -7);
+        calendar.add(Calendar.DAY_OF_MONTH, -7);
         this.dateRappel = calendar.getTime();
         this.prolongation = 0;
         this.enRetard = false;
     }
 
+    @Override
     public String toString(){
         String str = "";
         str += "\""+document.getTitre()+"\" de "+document.getAuteur()+"\n";
@@ -64,12 +66,16 @@ public class FicheEmprunt implements Serializable {
         return this.enRetard;
     }
 
+    public void isEnRetard(){
+        this.enRetard = true;
+    }
+
     public void prolongeEmprunt(){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(this.dateFin);
-        calendar.add(calendar.DAY_OF_MONTH,document.getDureeEmprunt());
+        calendar.add(Calendar.DAY_OF_MONTH,document.getDureeEmprunt());
         this.dateFin = calendar.getTime();
-        calendar.add(calendar.DAY_OF_MONTH, -7);
+        calendar.add(Calendar.DAY_OF_MONTH, -7);
         this.dateRappel = calendar.getTime();
         this.prolongation++;
     }

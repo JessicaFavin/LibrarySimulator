@@ -1,3 +1,4 @@
+
 import java.io.Serializable;
 
 public class Adresse implements Serializable {
@@ -19,9 +20,22 @@ public class Adresse implements Serializable {
 
 	}
 
+        @Override
 	public String toString(){
 		return numero + " " + voie + " " + nomVoie + " " + codePostal + " " + ville + " " + pays;
 	}
 
+	@Override
+	public boolean equals(Object obj){
+		boolean isEqual= false;
+		if (obj != null && obj instanceof Adresse){
+			Adresse adresse = (Adresse) obj;
+			isEqual = this.numero==adresse.numero&&this.voie.equals(adresse.voie)
+			&&this.nomVoie.equals(adresse.nomVoie)&&this.codePostal==adresse.codePostal
+			&&this.ville.equals(adresse.ville)&&this.pays.equals(adresse.pays);
+		}
+
+		return isEqual;
+	}
 
 }

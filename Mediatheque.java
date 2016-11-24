@@ -1,3 +1,4 @@
+
 import java.io.Serializable;
 import java.io.ObjectOutputStream;
 import java.io.FileOutputStream;
@@ -13,19 +14,22 @@ public class Mediatheque implements Serializable {
     private ArrayList<Document> listeDocuments;
     private ArrayList<FicheEmprunt> listeFicheEmprunts;
     private ArrayList<Client> listeClients;
+    private ArrayList<Employe> listeEmployes;
 
     public Mediatheque(String nom){
         this.nomMediatheque = nom;
-        listeDocuments = new ArrayList();
-        listeFicheEmprunts = new ArrayList();
-        listeClients = new ArrayList();
+        this.listeDocuments = new ArrayList();
+        this.listeFicheEmprunts = new ArrayList();
+        this.listeClients = new ArrayList();
+        this.listeEmployes = new ArrayList();
     }
 
     public Mediatheque(String nom, String pathname){
         this.nomMediatheque = nom;
-        listeDocuments = new ArrayList();
-        listeFicheEmprunts = new ArrayList();
-        listeClients = new ArrayList();
+        this.listeDocuments = new ArrayList();
+        this.listeFicheEmprunts = new ArrayList();
+        this.listeClients = new ArrayList();
+        this.listeEmployes = new ArrayList();
         try{
             this.initMediatheque(pathname);
         } catch(Exception e) {
@@ -33,11 +37,13 @@ public class Mediatheque implements Serializable {
         }
     }
 
+    @Override
     public String toString(){
         String str = "";
         str+="Mediathèque "+nomMediatheque+"\n";
         str+="Nombres de documents: "+listeDocuments.size()+"\n";
         str+="Nombres de clients: "+listeClients.size()+"\n";
+        str+="Nombres d'employés: "+listeEmployes.size()+"\n";
         str+="Nombres d'emprunts: "+listeFicheEmprunts.size()+"\n";
         return str;
     }
@@ -79,6 +85,15 @@ public class Mediatheque implements Serializable {
             for(int i=0; i<taille; i++){
                 client = (Client) ois.readObject();
                 listeClients.add(client);
+            }
+
+            flag = (String) ois.readObject();
+            if(!flag.equals("Employes")) throw new DataBaseException();
+            taille = (Integer) ois.readObject();
+            Employe employe;
+            for(int i=0; i<taille; i++){
+                employe = (Employe) ois.readObject();
+                listeEmployes.add(employe);
             }
         } catch (NullPointerException e) {
             System.out.println("INIT.Fichier de BDD introuvable.");
@@ -136,6 +151,15 @@ public class Mediatheque implements Serializable {
                 client = (Client) ois.readObject();
                 listeClients.add(client);
             }
+
+            flag = (String) ois.readObject();
+            if(!flag.equals("Employes")) throw new DataBaseException();
+            taille = (Integer) ois.readObject();
+            Employe employe;
+            for(int i=0; i<taille; i++){
+                employe = (Employe) ois.readObject();
+                listeEmployes.add(employe);
+            }
         } catch (NullPointerException e) {
             System.out.println("INIT.Fichier de BDD introuvable.");
             return false;
@@ -159,7 +183,7 @@ public class Mediatheque implements Serializable {
         //read documents and number of doc
         //read fichemeprunts and number of ficheemprunt
         //read clients and number of clients
-        ObjectOutputStream oos = null;;
+        ObjectOutputStream oos = null;
         try{
             File fichier =  new File("MEDIATHEQUE_"+nomMediatheque) ;
             oos =  new ObjectOutputStream(new FileOutputStream(fichier)) ;
@@ -195,6 +219,16 @@ public class Mediatheque implements Serializable {
                 client = listeClients.get(i);
                 oos.writeObject(client);
             }
+
+            flag = "Employes";
+            taille = new Integer(listeEmployes.size());
+            oos.writeObject(flag);
+            oos.writeObject(taille);
+            Employe employe;
+            for(int i=0; i<taille; i++){
+                employe = listeEmployes.get(i);
+                oos.writeObject(employe);
+            }
         } catch (NullPointerException e) {
             System.out.println("SAUVEGARDE. Fichier de BDD introuvable.");
             return false;
@@ -223,6 +257,9 @@ public class Mediatheque implements Serializable {
     public void addClient(Client client){
         this.listeClients.add(client);
     }
+    public void addEmploye(Employe employe){
+        this.listeEmployes.add(employe);
+    }
 
 
     public ArrayList getListeDocuments(){
@@ -235,6 +272,30 @@ public class Mediatheque implements Serializable {
 
     public ArrayList getListeClients(){
         return this.listeClients;
+    }
+
+    public ArrayList getListeEmployes(){
+        return this.listeFicheEmprunts;
+    }
+
+    public Client logClient(String username, String password){
+        Client client = null;
+        for(Client c: listeClients){
+            if(c.getUsername().equals(username) && c.getPassword().equals(password)){
+                return c;
+            }
+        }
+        return client;
+    }
+
+    public Employe logEmploye(String username, String password){
+        Employe employe = null;
+        for(Employe e: listeEmployes){
+            if(e.getUsername().equals(username) && e.getPassword().equals(password)){
+                return e;
+            }
+        }
+        return employe;
     }
 
 }

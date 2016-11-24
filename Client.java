@@ -1,3 +1,4 @@
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,10 +9,12 @@ public class Client implements Serializable {
 	private String prenom;
 	private Adresse adresse;
 	private CategorieClient categorie;
-	private Date dateInscription;
+	private final Date dateInscription;
 	private Date dateRenouvellement;
 	private int nbEmprunts;
 	private int nbRetards;
+    private String username;
+    private String password;
 
 
 	public Client( String nom, String prenom, Adresse adresse, CategorieClient categorie) {
@@ -24,6 +27,8 @@ public class Client implements Serializable {
 		calendar.add(Calendar.YEAR,1);
 		calendar.add(Calendar.DAY_OF_MONTH,-1);
 		dateRenouvellement = calendar.getTime();
+        this.username = (prenom+nom).toLowerCase();
+        this.password = username;
 	}
 
 	public String getNom(){
@@ -51,6 +56,14 @@ public class Client implements Serializable {
 		return this.nbRetards;
 	}
 
+    public String getUsername(){
+        return this.username;
+    }
+
+    public String getPassword(){
+        return this.password;
+    }
+
 	public void setNom( String nom){
 		this.nom=nom;
 	}
@@ -66,6 +79,14 @@ public class Client implements Serializable {
 	public void setDateRnouvellement( Date dateRenouvellement){
 		this.dateRenouvellement=dateRenouvellement;
 	}
+
+    public void setUsername(String username){
+        this.username = username;
+    }
+
+    public void setPassword(String password){
+        this.password = password;
+    }
 
 	public boolean ajoutEmprunt(){
 		if (this.categorie.getEmpruntsMax()>this.nbEmprunts){
@@ -97,15 +118,22 @@ public class Client implements Serializable {
 		return true;
 	}
 
+        @Override
 	public String toString(){
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("d/M/Y");
 		return prenom + " " + nom + " " +", Adresse: "+ adresse + "\n" + "Inscripton: "+dateFormatter.format(dateInscription) + " Renouvellement: " + dateFormatter.format(dateRenouvellement) + "\nEmprunts: " + nbEmprunts + ", Retards: " + nbRetards+"\n";
 
 	}
 
+	@Override
+	public boolean equals(Object obj){
+		boolean isEqual= false;
+		if (obj != null && obj instanceof Client){
+			Client client = (Client) obj;
+			isEqual = this.nom.equals(client.nom)&&this.prenom.equals(client.prenom)&&this.adresse.equals(client.adresse);
+		}
 
-
-
-
+		return isEqual;
+	}
 
 }
