@@ -477,6 +477,37 @@ public class LibrarySimulatorGUI implements ActionListener {
         return true;
     }
 
+    public boolean checkAddEmploye(){
+        if (nomEmploye.getText().trim()=="" || prenomEmploye.getText().trim()=="" ||
+         usernameEmploye.getText().trim()=="" || passwordEmploye.getText().trim()=="" ||
+         confirmPasswordEmploye.getText().trim()=="" || numeroEmploye.getText().trim()=="" ||
+         voieEmploye.getText().trim()=="" || rueEmploye.getText().trim()=="" ||
+         postalEmploye.getText().trim()=="" || villeEmploye.getText().trim()=="" ||
+         paysEmploye.getText().trim()==""){
+                return false;
+        }
+        try {
+            Integer.parseInt(numeroEmploye.getText());
+            Integer.parseInt(postalEmploye.getText());
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public boolean checkLoginEmploye(){
+        for(Employe e : m.getListeEmployes()){
+            if(e.getUsername().equals(usernameEmploye.getText().trim())){
+            return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean checkPasswordEmploye(){
+        return passwordEmploye.getText().trim().equals(confirmPasswordEmploye.getText().trim());
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -543,7 +574,9 @@ public class LibrarySimulatorGUI implements ActionListener {
                     if(!m.getListeClients().contains(client)){
                         m.addClient(client);
                         m.sauvegardeMediatheque();
+                        //-------------------------------------------------------
                         System.out.println(m);
+                        //-------------------------------------------------------
                         warningAddClient.setVisible(false);
                         confirmAddClient.setVisible(true);
                         msgAddClient.removeAll();
@@ -563,6 +596,53 @@ public class LibrarySimulatorGUI implements ActionListener {
                     warningAddClient.setVisible(true);
                     msgAddClient.removeAll();
                     msgAddClient.add(warningAddClient);
+                }
+                frame.pack();
+                break;
+            case "AddEmploye":
+                //TO DO
+                if(checkAddEmploye()){
+                    Adresse adresse = new Adresse(Integer.parseInt(numeroEmploye.getText()),
+                    voieEmploye.getText(), rueEmploye.getText(), Integer.parseInt(postalEmploye.getText()),
+                    villeEmploye.getText(), paysEmploye.getText());
+                    if(checkLoginEmploye() && checkPasswordEmploye()){
+                        Employe employe = new Employe(nomEmploye.getText(), prenomEmploye.getText(),
+                        adresse, usernameEmploye.getText(), passwordEmploye.getText());
+                        if(!m.getListeEmployes().contains(employe)){
+                            m.addEmploye(employe);
+                            m.sauvegardeMediatheque();
+                            System.out.println(m);
+                            warningAddEmploye.setVisible(false);
+                            confirmAddEmploye.setVisible(true);
+                            msgAddEmploye.removeAll();
+                            msgAddEmploye.add(confirmAddEmploye);
+                        } else {
+                            warningAddEmploye.setText("Cet employe existe déjà!");
+                            warningAddEmploye.setBounds(warningAddEmploye.getX(),warningAddEmploye.getY(),10,warningAddEmploye.getHeight());
+                            confirmAddEmploye.setVisible(false);
+                            warningAddEmploye.setVisible(true);
+                            msgAddEmploye.removeAll();
+                            msgAddEmploye.add(warningAddEmploye);
+                        }
+                    } else {
+                        if(!checkLoginEmploye()){
+                            warningAddEmploye.setText("Login dejà utilisé.");
+                        } else if(!checkPasswordEmploye()){
+                            warningAddEmploye.setText("Les mots de passe ne sont pas les mêmes!");
+                        }
+                        warningAddEmploye.setBounds(warningAddEmploye.getX(),warningAddEmploye.getY(),10,warningAddEmploye.getHeight());
+                        confirmAddEmploye.setVisible(false);
+                        warningAddEmploye.setVisible(true);
+                        msgAddEmploye.removeAll();
+                        msgAddEmploye.add(warningAddEmploye);
+                    }
+                } else {
+                    warningAddEmploye.setText("Infos incorrectes, recommencez.");
+                    warningAddEmploye.setBounds(warningAddEmploye.getX(),warningAddEmploye.getY(),10,warningAddEmploye.getHeight());
+                    confirmAddEmploye.setVisible(false);
+                    warningAddEmploye.setVisible(true);
+                    msgAddEmploye.removeAll();
+                    msgAddEmploye.add(warningAddEmploye);
                 }
                 frame.pack();
                 break;

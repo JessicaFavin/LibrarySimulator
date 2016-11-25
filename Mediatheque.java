@@ -262,20 +262,20 @@ public class Mediatheque implements Serializable {
     }
 
 
-    public ArrayList getListeDocuments(){
+    public ArrayList<Document> getListeDocuments(){
         return this.listeDocuments;
     }
 
-    public ArrayList getListeFicheEmprunts(){
+    public ArrayList<FicheEmprunt> getListeFicheEmprunts(){
         return this.listeFicheEmprunts;
     }
 
-    public ArrayList getListeClients(){
+    public ArrayList<Client> getListeClients(){
         return this.listeClients;
     }
 
-    public ArrayList getListeEmployes(){
-        return this.listeFicheEmprunts;
+    public ArrayList<Employe> getListeEmployes(){
+        return this.listeEmployes;
     }
 
     public Client logClient(String username, String password){
