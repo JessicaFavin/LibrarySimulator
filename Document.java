@@ -64,4 +64,18 @@ public abstract class Document implements Serializable {
         this.emprunte = false;
     }
 
+    @Override
+    public boolean equals(Object obj){
+        boolean isEqual= false;
+        if (obj != null && obj instanceof Document){
+            Document document = (Document) obj;
+            isEqual = this.annee==document.annee&&this.titre.equals(document.titre)
+            &&this.auteur.equals(document.auteur)&&this.isbn.equals(document.isbn)
+            &&this.genre.equals(document.genre)&&this.salle.equals(document.salle)
+            &&this.rayon.equals(document.rayon);
+        }
+
+        return isEqual;
+    }
+
 }

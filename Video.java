@@ -51,4 +51,18 @@ public class Video extends Document {
         return this.TARIF;
     }
 
+    @Override
+    public boolean equals(Object obj){
+        boolean isEqual= false;
+        if (obj != null && obj instanceof Video){
+            Video video = (Video) obj;
+            isEqual = this.annee==video.annee&&this.titre.equals(video.titre)
+            &&this.auteur.equals(video.auteur)&&this.dureeDVD==video.dureeDVD
+            &&this.isbn.equals(video.isbn)&&this.genre.equals(video.genre)
+            &&this.salle.equals(video.salle)&&this.rayon.equals(video.rayon);
+        }
+
+        return isEqual;
+    }
+
 }

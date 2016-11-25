@@ -52,4 +52,18 @@ public class Audio extends Document {
         return this.TARIF;
     }
 
+    @Override
+	public boolean equals(Object obj){
+		boolean isEqual= false;
+		if (obj != null && obj instanceof Audio){
+			Audio audio = (Audio) obj;
+			isEqual = this.annee==audio.annee&&this.titre.equals(audio.titre)
+			&&this.auteur.equals(audio.auteur)&&this.dureeCD==audio.dureeCD
+			&&this.isbn.equals(audio.isbn)&&this.genre.equals(audio.genre)
+            &&this.salle.equals(audio.salle)&&this.rayon.equals(audio.rayon);
+		}
+
+		return isEqual;
+	}
+
 }

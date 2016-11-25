@@ -58,6 +58,25 @@ public class LibrarySimulatorGUI implements ActionListener {
     JTextField postalEmploye;
     JTextField villeEmploye;
     JTextField paysEmploye;
+    //----------------Add Document---------------
+    JPanel msgAddDocument;
+    JLabel warningAddDocument;
+    JLabel confirmAddDocument;
+    JPanel addDocumentPanel;
+    JRadioButton typeAudio;
+    JRadioButton typeVideo;
+    JRadioButton typeLivre;
+    JTextField titreDocument;
+    JTextField auteurDocument;
+    JTextField anneeDocument;
+    JTextField isbnDocument;
+    JTextField genreDocument;
+    JTextField salleDocument;
+    JTextField rayonDocument;
+    JTextField tailleDocument;
+    JPanel taillePanel;
+    JLabel dureeDocumentLabel;
+    JLabel pagesDocumentLabel;
 
     private void updateFrame(){
         frame.dispose();
@@ -80,7 +99,7 @@ public class LibrarySimulatorGUI implements ActionListener {
         warningAddClient.setForeground(Color.red);
         warningAddClient.setVisible(false);
 
-        confirmAddClient = new JLabel("Client bien ajouté!");
+        confirmAddClient = new JLabel("Utilisateur bien ajouté!");
         confirmAddClient.setForeground(Color.green);
         confirmAddClient.setBounds(confirmAddClient.getX(),confirmAddClient.getY(),10,confirmAddClient.getHeight());
         confirmAddClient.setVisible(false);
@@ -282,6 +301,111 @@ public class LibrarySimulatorGUI implements ActionListener {
         addEmployePanel.add(validatePanel);
     }
 
+    public void initAddDocumentPanel(){
+        addDocumentPanel = new JPanel(new GridLayout(11,1));
+
+        warningAddDocument = new JLabel("Infos incorrectes, recommencez.");
+        warningAddDocument.setBounds(warningAddDocument.getX(),warningAddDocument.getY(),10,warningAddDocument.getHeight());
+        warningAddDocument.setForeground(Color.red);
+        warningAddDocument.setVisible(false);
+
+        confirmAddDocument = new JLabel("Document bien ajouté!");
+        confirmAddDocument.setForeground(Color.green);
+        confirmAddDocument.setBounds(confirmAddDocument.getX(),confirmAddDocument.getY(),10,confirmAddDocument.getHeight());
+        confirmAddDocument.setVisible(false);
+
+        msgAddDocument = new JPanel(new FlowLayout());;
+        addDocumentPanel.add(msgAddDocument);
+
+        JPanel typePanel = new JPanel(new FlowLayout());
+        JLabel typeDocumentLabel = new JLabel("Catégorie : ");
+        ButtonGroup typeDocument = new ButtonGroup( );
+        typeAudio = new JRadioButton("Audio");
+        typeAudio.addActionListener(this);
+        typeAudio.setActionCommand("MultimediaLabel");
+        typeVideo = new JRadioButton("Video");
+        typeVideo.addActionListener(this);
+        typeVideo.setActionCommand("MultimediaLabel");
+        typeLivre = new JRadioButton("Livre");
+        typeLivre.addActionListener(this);
+        typeLivre.setActionCommand("LivreLabel");
+        typeLivre.setSelected(true);
+        typeDocument.add(typeAudio);
+        typeDocument.add(typeVideo);
+        typeDocument.add(typeLivre);
+
+        typePanel.add(typeDocumentLabel);
+        typePanel.add(typeAudio);
+        typePanel.add(typeVideo);
+        typePanel.add(typeLivre);
+
+        addDocumentPanel.add(typePanel);
+
+        JPanel titrePanel = new JPanel(new FlowLayout());
+        JLabel titreDocumentLabel = new JLabel("Titre :                   ");
+        titreDocument = new JTextField(10);
+        titrePanel.add(titreDocumentLabel);
+        titrePanel.add(titreDocument);
+        addDocumentPanel.add(titrePanel);
+
+        JPanel auteurPanel = new JPanel(new FlowLayout());
+        JLabel auteurDocumentLabel = new JLabel("Auteur :               ");
+        auteurDocument = new JTextField(10);
+        auteurPanel.add(auteurDocumentLabel);
+        auteurPanel.add(auteurDocument);
+        addDocumentPanel.add(auteurPanel);
+
+        JPanel anneePanel = new JPanel(new FlowLayout());
+        JLabel anneeDocumentLabel = new JLabel("Année :               ");
+        anneeDocument = new JTextField(10);
+        anneePanel.add(anneeDocumentLabel);
+        anneePanel.add(anneeDocument);
+        addDocumentPanel.add(anneePanel);
+
+        JPanel isbnPanel = new JPanel(new FlowLayout());
+        JLabel isbnDocumentLabel = new JLabel("Isbn :                   ");
+        isbnDocument = new JTextField(10);
+        isbnPanel.add(isbnDocumentLabel);
+        isbnPanel.add(isbnDocument);
+        addDocumentPanel.add(isbnPanel);
+
+        JPanel genrePanel = new JPanel(new FlowLayout());
+        JLabel genreDocumentLabel = new JLabel("Genre :               ");
+        genreDocument = new JTextField(10);
+        genrePanel.add(genreDocumentLabel);
+        genrePanel.add(genreDocument);
+        addDocumentPanel.add(genrePanel);
+
+        JPanel sallePanel = new JPanel(new FlowLayout());
+        JLabel salleDocumentLabel = new JLabel("Salle :                 ");
+        salleDocument = new JTextField(10);
+        sallePanel.add(salleDocumentLabel);
+        sallePanel.add(salleDocument);
+        addDocumentPanel.add(sallePanel);
+
+        JPanel rayonPanel = new JPanel(new FlowLayout());
+        JLabel rayonDocumentLabel = new JLabel("Rayon :               ");
+        rayonDocument = new JTextField(10);
+        rayonPanel.add(rayonDocumentLabel);
+        rayonPanel.add(rayonDocument);
+        addDocumentPanel.add(rayonPanel);
+
+        taillePanel = new JPanel(new FlowLayout());
+        dureeDocumentLabel = new JLabel("Duree (mm.ss) : ");
+        pagesDocumentLabel = new JLabel("Nb de pages :   ");
+        tailleDocument = new JTextField(10);
+        taillePanel.add(pagesDocumentLabel);
+        taillePanel.add(tailleDocument);
+        addDocumentPanel.add(taillePanel);
+
+        JPanel validatePanel = new JPanel(new FlowLayout());
+        JButton validateButton = new JButton("Valider");
+        validateButton.addActionListener(this);
+        validateButton.setActionCommand("AddDocument");
+        validatePanel.add(validateButton);
+        addDocumentPanel.add(validatePanel);
+    }
+
     private void initEmployePane(){
         employePane = new JTabbedPane();
 
@@ -289,9 +413,8 @@ public class LibrarySimulatorGUI implements ActionListener {
         panel1.setLayout(new BorderLayout());
         employePane.addTab("Recherche",panel1);
 
-        JPanel panel2 = new JPanel();
-        panel2.setLayout(new BorderLayout());
-        employePane.addTab("Ajout Document", panel2);
+        initAddDocumentPanel();
+        employePane.addTab("Ajout Document", addDocumentPanel);
 
         initAddClientPanel();
         employePane.addTab("Ajout Client", addClientPanel);
@@ -320,22 +443,15 @@ public class LibrarySimulatorGUI implements ActionListener {
 
     private void initClientPane(){
         clientPane = new JTabbedPane();
-        JLabel welcome = new JLabel("WELCOME BITCHES");
-        JButton button = new JButton("prout");
         JPanel panel1 = new JPanel();
         panel1.setLayout(new BorderLayout());
-        panel1.add(welcome, BorderLayout.CENTER);
-        panel1.add(button, BorderLayout.SOUTH);
-        clientPane.addTab("Tab 1",panel1);
+        clientPane.addTab("Recherche",panel1);
         JPanel panel2 = new JPanel();
         panel2.setLayout(new BorderLayout());
-        clientPane.addTab("Tab 2", panel2);
+        clientPane.addTab("Profil", panel2);
         JPanel panel3 = new JPanel();
         panel3.setLayout(new BorderLayout());
-        clientPane.addTab("Tab 3", panel3);
-        JPanel panel4 = new JPanel(null);
-        panel4.setLayout(new BorderLayout());
-        clientPane.addTab("Tab 4", panel4);
+        clientPane.addTab("Solde", panel3);
     }
 
     private void initClientPanel(String nom,String prenom){
@@ -349,9 +465,7 @@ public class LibrarySimulatorGUI implements ActionListener {
         logoutButton.setActionCommand("deconnect");
         infoPanel.add(logoutButton, BorderLayout.LINE_END);
         clientPanel.add(infoPanel, BorderLayout.NORTH);
-        //----------------------------------------------------------------------
         initClientPane();
-        //----------------------------------------------------------------------
         clientPanel.add(clientPane ,BorderLayout.CENTER);
     }
 
@@ -380,9 +494,7 @@ public class LibrarySimulatorGUI implements ActionListener {
         logoutButton.setActionCommand("deconnect");
         infoPanel.add(logoutButton, BorderLayout.LINE_END);
         invitePanel.add(infoPanel, BorderLayout.NORTH);
-        //----------------------------------------------------------------------
         initInvitePane();
-        //----------------------------------------------------------------------
         invitePanel.add(invitePane ,BorderLayout.CENTER);
     }
 
@@ -495,6 +607,25 @@ public class LibrarySimulatorGUI implements ActionListener {
         return true;
     }
 
+    private boolean checkAddDocument(){
+        if (titreDocument.getText().trim()=="" || auteurDocument.getText().trim()=="" ||
+         genreDocument.getText().trim()=="" || isbnDocument.getText().trim()=="" ||
+         salleDocument.getText().trim()=="" || rayonDocument.getText().trim()==""){
+                return false;
+        }
+        try {
+            Integer.parseInt(anneeDocument.getText());
+            if(typeLivre.isSelected()){
+                Integer.parseInt(tailleDocument.getText());
+            } else {
+                Double.parseDouble(tailleDocument.getText());
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
+    }
+
     public boolean checkLoginEmploye(){
         for(Employe e : m.getListeEmployes()){
             if(e.getUsername().equals(usernameEmploye.getText().trim())){
@@ -581,8 +712,9 @@ public class LibrarySimulatorGUI implements ActionListener {
                         confirmAddClient.setVisible(true);
                         msgAddClient.removeAll();
                         msgAddClient.add(confirmAddClient);
+                        JOptionPane.showMessageDialog(frame, "Le login et le mot de passe sont : "+(client.getPrenom()+client.getNom()).toLowerCase()+". Pensez à les modifier!", "Login utilisateur", JOptionPane.INFORMATION_MESSAGE);
                     } else {
-                        warningAddClient.setText("Ce client existe déjà!");
+                        warningAddClient.setText("Cet utilisateur existe déjà!");
                         warningAddClient.setBounds(warningAddClient.getX(),warningAddClient.getY(),10,warningAddClient.getHeight());
                         confirmAddClient.setVisible(false);
                         warningAddClient.setVisible(true);
@@ -600,7 +732,6 @@ public class LibrarySimulatorGUI implements ActionListener {
                 frame.pack();
                 break;
             case "AddEmploye":
-                //TO DO
                 if(checkAddEmploye()){
                     Adresse adresse = new Adresse(Integer.parseInt(numeroEmploye.getText()),
                     voieEmploye.getText(), rueEmploye.getText(), Integer.parseInt(postalEmploye.getText()),
@@ -644,6 +775,69 @@ public class LibrarySimulatorGUI implements ActionListener {
                     msgAddEmploye.removeAll();
                     msgAddEmploye.add(warningAddEmploye);
                 }
+                frame.pack();
+                break;
+            case "AddDocument":
+                if(checkAddDocument()){
+                    Document document = null;
+                    if(typeAudio.isSelected()){
+                        document = new Audio(titreDocument.getText(), auteurDocument.getText(),
+                        Integer.parseInt(anneeDocument.getText()), isbnDocument.getText(),
+                        genreDocument.getText(), salleDocument.getText(), rayonDocument.getText(),
+                        Double.parseDouble(tailleDocument.getText()));
+                    } else if(typeVideo.isSelected()){
+                        document = new Video(titreDocument.getText(), auteurDocument.getText(),
+                        Integer.parseInt(anneeDocument.getText()), isbnDocument.getText(),
+                        genreDocument.getText(), salleDocument.getText(), rayonDocument.getText(),
+                        Double.parseDouble(tailleDocument.getText()));
+                    } else {
+                        document = new Livre(titreDocument.getText(), auteurDocument.getText(),
+                        Integer.parseInt(anneeDocument.getText()), isbnDocument.getText(),
+                        genreDocument.getText(), salleDocument.getText(), rayonDocument.getText(),
+                        Integer.parseInt(tailleDocument.getText()));
+                    }
+                    if(document!=null && !m.getListeDocuments().contains(document)){
+                        m.addDocument(document);
+                        m.sauvegardeMediatheque();
+                        //-------------------------------------------------------
+                        System.out.println(m);
+                        //-------------------------------------------------------
+                        warningAddDocument.setVisible(false);
+                        confirmAddDocument.setVisible(true);
+                        msgAddDocument.removeAll();
+                        msgAddDocument.add(confirmAddDocument);
+                    } else {
+                        warningAddDocument.setText("Ce document existe déjà!");
+                        warningAddDocument.setBounds(warningAddDocument.getX(),warningAddDocument.getY(),10,warningAddDocument.getHeight());
+                        confirmAddDocument.setVisible(false);
+                        warningAddDocument.setVisible(true);
+                        msgAddDocument.removeAll();
+                        msgAddDocument.add(warningAddDocument);
+                    }
+                } else {
+                    warningAddDocument.setText("Infos incorrectes, recommencez.");
+                    warningAddDocument.setBounds(warningAddDocument.getX(),warningAddDocument.getY(),10,warningAddDocument.getHeight());
+                    confirmAddDocument.setVisible(false);
+                    warningAddDocument.setVisible(true);
+                    msgAddDocument.removeAll();
+                    msgAddDocument.add(warningAddDocument);
+                }
+                frame.pack();
+                break;
+            case "MultimediaLabel":
+                taillePanel.removeAll();
+                taillePanel.add(dureeDocumentLabel);
+                taillePanel.add(tailleDocument);
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "LivreLabel":
+                taillePanel.removeAll();
+                taillePanel.add(pagesDocumentLabel);
+                taillePanel.add(tailleDocument);
+                frame.revalidate();
+                frame.repaint();
                 frame.pack();
                 break;
             default:

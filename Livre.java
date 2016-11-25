@@ -51,4 +51,18 @@ public class Livre extends Document {
         return this.TARIF;
     }
 
+    @Override
+    public boolean equals(Object obj){
+        boolean isEqual= false;
+        if (obj != null && obj instanceof Livre){
+            Livre livre = (Livre) obj;
+            isEqual = this.annee==livre.annee&&this.titre.equals(livre.titre)
+            &&this.auteur.equals(livre.auteur)&&this.nbPages==livre.nbPages
+            &&this.isbn.equals(livre.isbn)&&this.genre.equals(livre.genre)
+            &&this.salle.equals(livre.salle)&&this.rayon.equals(livre.rayon);
+        }
+
+        return isEqual;
+    }
+
 }
