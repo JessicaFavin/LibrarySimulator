@@ -9,10 +9,10 @@ public class FicheEmprunt implements Serializable {
     private final Client      client;
     private final Document    document;
     private final Date        dateDebut;
-    private Date        dateFin;
-    private Date        dateRappel;
-    private int         prolongation;
-    private boolean     enRetard;
+    private       Date        dateFin;
+    private       Date        dateRappel;
+    private       int         prolongation;
+    private       boolean     enRetard;
 
     FicheEmprunt(Client client, Document document){
         this.client = client;

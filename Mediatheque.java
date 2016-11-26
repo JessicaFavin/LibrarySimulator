@@ -250,8 +250,14 @@ public class Mediatheque implements Serializable {
         this.listeDocuments.add(document);
     }
 
-    public void addFicheEmprunt(FicheEmprunt ficheEmprunt){
-        this.listeFicheEmprunts.add(ficheEmprunt);
+    public boolean addFicheEmprunt(FicheEmprunt ficheEmprunt){
+        int empruntMax = ficheEmprunt.getClient().getCategorie().getEmpruntsMax();
+        int currentEmprunts = this.empruntClient(ficheEmprunt.getClient()).size();
+        if(currentEmprunts<empruntMax){
+            this.listeFicheEmprunts.add(ficheEmprunt);
+            return true;
+        }
+        return false;
     }
 
     public void addClient(Client client){
@@ -296,6 +302,25 @@ public class Mediatheque implements Serializable {
             }
         }
         return employe;
+    }
+
+    public ArrayList<FicheEmprunt> empruntClient(Client client){
+        ArrayList<FicheEmprunt> res = new ArrayList();
+        for(FicheEmprunt f: listeFicheEmprunts){
+            if(f.getClient().equals(client)){
+                res.add(f);
+            }
+        }
+        return res;
+    }
+
+    public double getSoldeClient(Client client){
+        double solde = 0;
+        ArrayList<FicheEmprunt> list = empruntClient(client);
+        for(FicheEmprunt f : list){
+            solde += f.getDocument().getTarif()*f.getClient().getCategorie().getCoefTarif();
+        }
+        return solde;
     }
 
 }

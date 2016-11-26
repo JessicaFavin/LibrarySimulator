@@ -3,12 +3,14 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.ImageIcon;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 public class LibrarySimulatorGUI implements ActionListener {
 
     Mediatheque m;
     JFrame frame;
+    Client clientLogged;
     JLabel userLogged;
     String userStatus;
     //----------------Conneciton---------------
@@ -77,6 +79,12 @@ public class LibrarySimulatorGUI implements ActionListener {
     JPanel taillePanel;
     JLabel dureeDocumentLabel;
     JLabel pagesDocumentLabel;
+    //--------------Emprunt user-------------------
+    JPanel empruntPanel;
+    //----------------Solde user-------------------
+    JPanel soldePanel;
+    //----------------Profil user-------------------
+    JPanel profilPanel;
 
     private void updateFrame(){
         frame.dispose();
@@ -186,12 +194,17 @@ public class LibrarySimulatorGUI implements ActionListener {
         paysPanel.add(paysClient);
         addClientPanel.add(paysPanel);
 
-        JPanel validatePanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton validateButton = new JButton("Valider");
         validateButton.addActionListener(this);
         validateButton.setActionCommand("AddClient");
-        validatePanel.add(validateButton);
-        addClientPanel.add(validatePanel);
+        JButton clearButton = new JButton("Effacer");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("ClearClient");
+
+        buttonPanel.add(validateButton);
+        buttonPanel.add(clearButton);
+        addClientPanel.add(buttonPanel);
     }
 
     private void initAddEmployePanel(){
@@ -293,12 +306,16 @@ public class LibrarySimulatorGUI implements ActionListener {
         paysPanel.add(paysEmploye);
         addEmployePanel.add(paysPanel);
 
-        JPanel validatePanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton validateButton = new JButton("Valider");
         validateButton.addActionListener(this);
         validateButton.setActionCommand("AddEmploye");
-        validatePanel.add(validateButton);
-        addEmployePanel.add(validatePanel);
+        JButton clearButton = new JButton("Effacer");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("ClearEmploye");
+        buttonPanel.add(validateButton);
+        buttonPanel.add(clearButton);
+        addEmployePanel.add(buttonPanel);
     }
 
     public void initAddDocumentPanel(){
@@ -398,12 +415,17 @@ public class LibrarySimulatorGUI implements ActionListener {
         taillePanel.add(tailleDocument);
         addDocumentPanel.add(taillePanel);
 
-        JPanel validatePanel = new JPanel(new FlowLayout());
+        JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton validateButton = new JButton("Valider");
         validateButton.addActionListener(this);
         validateButton.setActionCommand("AddDocument");
-        validatePanel.add(validateButton);
-        addDocumentPanel.add(validatePanel);
+        JButton clearButton = new JButton("Effacer");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("ClearDocument");
+
+        buttonPanel.add(validateButton);
+        buttonPanel.add(clearButton);
+        addDocumentPanel.add(buttonPanel);
     }
 
     private void initEmployePane(){
@@ -441,17 +463,110 @@ public class LibrarySimulatorGUI implements ActionListener {
         employePanel.add(employePane ,BorderLayout.CENTER);
     }
 
+    private void initEmpruntPanel(){
+        empruntPanel = new JPanel(new FlowLayout());
+        ArrayList<FicheEmprunt> listeEmprunts = m.empruntClient(clientLogged);
+        JPanel empruntList = new JPanel(new GridLayout(listeEmprunts.size()+1,1));
+
+        JPanel infoDoc = new JPanel(new GridLayout(1,6));
+        infoDoc.add(new JLabel("Titre"));
+        infoDoc.add(new JLabel("Auteur"));
+        infoDoc.add(new JLabel("Année"));
+        infoDoc.add(new JLabel("Date Retour"));
+        infoDoc.add(new JLabel("En retard"));
+        empruntList.add(infoDoc);
+        JPanel docLigne;
+        SimpleDateFormat dateform = new SimpleDateFormat("d/M/Y");
+        for(FicheEmprunt f: listeEmprunts){
+            Document doc = f.getDocument();
+            docLigne = new JPanel(new GridLayout(1,6));
+            docLigne.add(new JLabel(doc.getTitre()));
+            docLigne.add(new JLabel(doc.getAuteur()));
+            docLigne.add(new JLabel(Integer.toString(doc.getAnnee())));
+            docLigne.add(new JLabel(dateform.format(f.getDateFin())));
+            if(f.getEnRetard()){
+                docLigne.add(new JLabel("Oui"));
+            }else{
+                docLigne.add(new JLabel("Non"));
+            }
+            empruntList.add(docLigne);
+        }
+
+        JScrollPane scroll = new JScrollPane(empruntList);
+        scroll.setPreferredSize(new Dimension(600,400));
+        //scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        empruntPanel.add(scroll);
+    }
+
+    private void initSoldePanel(){
+        soldePanel = new JPanel(new BorderLayout());
+        String msg = "Votre solde est de "+m.getSoldeClient(clientLogged)+"€. Votre cotisation est de "+clientLogged.getCategorie().getCotisation()+"€.";
+        JLabel soldeClient = new JLabel(msg);
+        soldeClient.setHorizontalAlignment(SwingConstants.CENTER);
+        soldePanel.add(soldeClient,BorderLayout.CENTER);
+    }
+
+    private void initProfilPanel(){
+        profilPanel = new JPanel(new GridLayout(7,1));
+        JPanel headerPanel = new JPanel(new FlowLayout());
+        JLabel header = new JLabel("Votre Profil");
+        headerPanel.add(header);
+        profilPanel.add(headerPanel);
+
+        JPanel nomPanel = new JPanel(new FlowLayout());
+        JLabel nomClientLabel = new JLabel("Nom : ");
+        JLabel nom = new JLabel(clientLogged.getNom());
+        nomPanel.add(nomClientLabel);
+        nomPanel.add(nom);
+        profilPanel.add(nomPanel);
+
+        JPanel prenomPanel = new JPanel(new FlowLayout());
+        JLabel prenomClientLabel = new JLabel("Prenom : ");
+        JLabel prenom = new JLabel(clientLogged.getPrenom());
+        prenomPanel.add(prenomClientLabel);
+        prenomPanel.add(prenom);
+        profilPanel.add(prenomPanel);
+
+        JPanel categoriePanel = new JPanel(new FlowLayout());
+        JLabel categorieClientLabel = new JLabel("Catégorie : ");
+        JLabel categorie = new JLabel(clientLogged.getCategorie().name());
+        categoriePanel.add(categorieClientLabel);
+        categoriePanel.add(categorie);
+        profilPanel.add(categoriePanel);
+
+        JPanel adresseClientPanel = new JPanel(new FlowLayout());
+        JLabel adresseClient = new JLabel("Adresse : ");
+        JLabel adresse = new JLabel(clientLogged.getAdresse().toString());
+        adresseClientPanel.add(adresseClient);
+        adresseClientPanel.add(adresse);
+        profilPanel.add(adresseClientPanel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton editButton = new JButton("Modifier");
+        editButton.addActionListener(this);
+        editButton.setActionCommand("editProfil");
+        buttonPanel.add(editButton);
+        profilPanel.add(buttonPanel);
+
+        String msg = "Votre solde est de "+m.getSoldeClient(clientLogged)+"€. Votre cotisation est de "+clientLogged.getCategorie().getCotisation()+"€.";
+        JLabel soldeClient = new JLabel(msg);
+        soldeClient.setHorizontalAlignment(SwingConstants.CENTER);
+        profilPanel.add(soldeClient);
+
+        profilPanel.setPreferredSize(new Dimension(600, 200));
+    }
+
     private void initClientPane(){
         clientPane = new JTabbedPane();
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new BorderLayout());
-        clientPane.addTab("Recherche",panel1);
+        initEmpruntPanel();
+        clientPane.addTab("Emprunts", empruntPanel);
         JPanel panel2 = new JPanel();
         panel2.setLayout(new BorderLayout());
-        clientPane.addTab("Profil", panel2);
-        JPanel panel3 = new JPanel();
-        panel3.setLayout(new BorderLayout());
-        clientPane.addTab("Solde", panel3);
+        clientPane.addTab("Recherche",panel2);
+        initProfilPanel();
+        clientPane.addTab("Profil", profilPanel);
+        initSoldePanel();
+        clientPane.addTab("Solde", soldePanel);
     }
 
     private void initClientPanel(String nom,String prenom){
@@ -543,11 +658,12 @@ public class LibrarySimulatorGUI implements ActionListener {
         connectionPanel.add(inviteButton);
     }
 
-    LibrarySimulatorGUI(String name) {
+    public LibrarySimulatorGUI(String name) {
         //maybe check if save file exists load it!
         //or else a tab for loading data and saving it
         name = name.replaceAll(" ", "_");
         this.m = new Mediatheque(name);
+        this.clientLogged = null;
         try {
             File fichier =  new File("MEDIATHEQUE_"+name);
             if(fichier.exists()){
@@ -555,7 +671,45 @@ public class LibrarySimulatorGUI implements ActionListener {
             } else {
                 Adresse adresse = new Adresse(12, "rue", "des pommiers", 75012, "Paris", "France");
                 Employe emp = new Employe("admin","admin",adresse,"admin","admin");
+                Client client = new Client("Dupont","Jean", adresse, CategorieClient.ETUDIANT);
+                Audio cd = new Audio("Citizen of Glass", "Agnes Obel", 2016, "FZ6J63CJ8", "Classique", "Musique", "Classique", 40);
+                FicheEmprunt fiche = new FicheEmprunt(client, cd);
+                Audio cd2 = new Audio("Aventine", "Agnes Obel", 2013, "ZGEJ634", "Classique", "Musique", "Classique", 37);
+                FicheEmprunt fiche2 = new FicheEmprunt(client, cd2);
+                m.addDocument(cd2);
                 m.addEmploye(emp);
+                m.addClient(client);
+                m.addDocument(cd);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche);
+                m.addFicheEmprunt(fiche2);
             }
         } catch (DataBaseException ex) {
             ex.printStackTrace();
@@ -660,6 +814,7 @@ public class LibrarySimulatorGUI implements ActionListener {
                     if (client != null) {
                         found = true;
                         updateFrame();
+                        clientLogged = client;
                         initClientPanel(client.getNom(), client.getPrenom());
                         frame.add(clientPanel);
                         frame.pack();
@@ -833,6 +988,53 @@ public class LibrarySimulatorGUI implements ActionListener {
                 frame.pack();
                 break;
             case "LivreLabel":
+                taillePanel.removeAll();
+                taillePanel.add(pagesDocumentLabel);
+                taillePanel.add(tailleDocument);
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "ClearEmploye":
+                warningAddEmploye.setVisible(false);
+                confirmAddEmploye.setVisible(false);
+                usernameEmploye.setText("");
+                passwordEmploye.setText("");
+                confirmPasswordEmploye.setText("");
+                nomEmploye.setText("");
+                prenomEmploye.setText("");
+                numeroEmploye.setText("");
+                voieEmploye.setText("");
+                rueEmploye.setText("");
+                postalEmploye.setText("");
+                villeEmploye.setText("");
+                paysEmploye.setText("");
+                break;
+            case "ClearClient":
+                warningAddClient.setVisible(false);
+                confirmAddClient.setVisible(false);
+                categParticulier.setSelected(true);
+                nomClient.setText("");
+                prenomClient.setText("");
+                numeroClient.setText("");
+                voieClient.setText("");
+                rueClient.setText("");
+                postalClient.setText("");
+                villeClient.setText("");
+                paysClient.setText("");
+                break;
+            case "ClearDocument":
+                warningAddDocument.setVisible(false);
+                confirmAddDocument.setVisible(false);
+                typeLivre.setSelected(true);
+                titreDocument.setText("");
+                auteurDocument.setText("");
+                anneeDocument.setText("");
+                isbnDocument.setText("");
+                genreDocument.setText("");
+                salleDocument.setText("");
+                rayonDocument.setText("");
+                tailleDocument.setText("");
                 taillePanel.removeAll();
                 taillePanel.add(pagesDocumentLabel);
                 taillePanel.add(tailleDocument);
