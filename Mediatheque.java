@@ -18,18 +18,18 @@ public class Mediatheque implements Serializable {
 
     public Mediatheque(String nom){
         this.nomMediatheque = nom;
-        this.listeDocuments = new ArrayList();
-        this.listeFicheEmprunts = new ArrayList();
-        this.listeClients = new ArrayList();
-        this.listeEmployes = new ArrayList();
+        this.listeDocuments = new ArrayList<Document>();
+        this.listeFicheEmprunts = new ArrayList<FicheEmprunt>();
+        this.listeClients = new ArrayList<Client>();
+        this.listeEmployes = new ArrayList<Employe>();
     }
 
     public Mediatheque(String nom, String pathname){
         this.nomMediatheque = nom;
-        this.listeDocuments = new ArrayList();
-        this.listeFicheEmprunts = new ArrayList();
-        this.listeClients = new ArrayList();
-        this.listeEmployes = new ArrayList();
+        this.listeDocuments = new ArrayList<Document>();
+        this.listeFicheEmprunts = new ArrayList<FicheEmprunt>();
+        this.listeClients = new ArrayList<Client>();
+        this.listeEmployes = new ArrayList<Employe>();
         try{
             this.initMediatheque(pathname);
         } catch(Exception e) {
@@ -305,13 +305,22 @@ public class Mediatheque implements Serializable {
     }
 
     public ArrayList<FicheEmprunt> empruntClient(Client client){
-        ArrayList<FicheEmprunt> res = new ArrayList();
+        ArrayList<FicheEmprunt> res = new ArrayList<FicheEmprunt>();
         for(FicheEmprunt f: listeFicheEmprunts){
             if(f.getClient().equals(client)){
                 res.add(f);
             }
         }
         return res;
+    }
+
+    public FicheEmprunt getFiche(Document d){
+        for(FicheEmprunt f: listeFicheEmprunts){
+            if(d.equals(f.getDocument())){
+                return f;
+            }
+        }
+        return null;
     }
 
     public double getSoldeClient(Client client){
@@ -321,6 +330,65 @@ public class Mediatheque implements Serializable {
             solde += f.getDocument().getTarif()*f.getClient().getCategorie().getCoefTarif();
         }
         return solde;
+    }
+
+    public Client getClient(String nom, String prenom){
+        for(Client c: listeClients){
+            if(c.getNom().toLowerCase().equals(nom.trim().toLowerCase())&&c.getPrenom().toLowerCase().equals(prenom.trim().toLowerCase())){
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public Document getDocument(String titre, String auteur){
+        for(Document d: listeDocuments){
+            if(d.getTitre().toLowerCase().equals(titre.trim().toLowerCase()) && d.getAuteur().toLowerCase().equals(auteur.trim().toLowerCase())){
+                return d;
+            }
+        }
+        return null;
+    }
+
+    public boolean removeFicheEmprunt(Client c, Document d){
+        for(FicheEmprunt f: empruntClient(c)){
+            if(c.getNom().toLowerCase().equals(f.getClient().getNom().trim().toLowerCase()) && c.getPrenom().toLowerCase().equals(f.getClient().getPrenom().trim().toLowerCase())
+            && d.getTitre().toLowerCase().equals(f.getDocument().getTitre().trim().toLowerCase()) && d.getAuteur().toLowerCase().equals(f.getDocument().getAuteur().trim().toLowerCase())){
+                f.getDocument().rendu();
+                this.listeFicheEmprunts.remove(f);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public ArrayList<Client> getClientStartsWith(String motif, boolean nom, boolean prenom){
+        ArrayList<Client> res = new ArrayList<Client>();
+        for(Client c: listeClients){
+            if(nom && c.getNom().toLowerCase().startsWith(motif.toLowerCase())){
+                res.add(c);
+            }
+            if(prenom && !res.contains(c) && c.getPrenom().toLowerCase().startsWith(motif.toLowerCase())){
+                res.add(c);
+            }
+        }
+        return res;
+    }
+
+    public ArrayList<Document> getDocumentStartsWith(String motif, boolean audio, boolean video, boolean livre){
+        ArrayList<Document> res = new ArrayList<Document>();
+        for(Document d: listeDocuments){
+            if(audio && d instanceof Audio && (d.getTitre().toLowerCase().startsWith(motif.toLowerCase())||d.getAuteur().toLowerCase().startsWith(motif.toLowerCase()))){
+                res.add(d);
+            }
+            if(video && d instanceof Video && (d.getTitre().toLowerCase().startsWith(motif.toLowerCase())||d.getAuteur().toLowerCase().startsWith(motif.toLowerCase()))){
+                res.add(d);
+            }
+            if(livre && d instanceof Livre && (d.getTitre().toLowerCase().startsWith(motif.toLowerCase())||d.getAuteur().toLowerCase().startsWith(motif.toLowerCase()))){
+                res.add(d);
+            }
+        }
+        return res;
     }
 
 }

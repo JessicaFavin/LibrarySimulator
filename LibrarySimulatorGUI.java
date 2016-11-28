@@ -3,6 +3,7 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -79,12 +80,51 @@ public class LibrarySimulatorGUI implements ActionListener {
     JPanel taillePanel;
     JLabel dureeDocumentLabel;
     JLabel pagesDocumentLabel;
+    //--------------AddEmprunt-------------------
+    JPanel addEmpruntPanel;
+    JPanel msgAddEmprunt;
+    JLabel warningAddEmprunt;
+    JLabel confirmAddEmprunt;
+    JLabel restantEmprunt;
+    JTextField titreDocEmprunt;
+    JTextField auteurDocEmprunt;
+    JTextField nomClientEmprunt;
+    JTextField prenomClientEmprunt;
+    //--------------Retour-------------------
+    JPanel retourPanel;
+    JPanel msgRetour;
+    JLabel warningRetour;
+    JLabel confirmRetour;
+    JLabel restantRetour;
+    JTextField titreDocRetour;
+    JTextField auteurDocRetour;
+    JTextField nomClientRetour;
+    JTextField prenomClientRetour;
+    //--------------Recherche-------------------
+    JPanel recherchePanel;
+    JTextField rechercheField;
+    JRadioButton clientButton;
+    JRadioButton documentButton;
+    JPanel optionPanel;
+    JCheckBox nomBox;
+    JCheckBox prenomBox;
+    JCheckBox audioBox;
+    JCheckBox videoBox;
+    JCheckBox livreBox;
+    JTextArea resultatArea;
     //--------------Emprunt user-------------------
     JPanel empruntPanel;
-    //----------------Solde user-------------------
-    JPanel soldePanel;
     //----------------Profil user-------------------
     JPanel profilPanel;
+
+    //----------------Update password-------------------
+    JFrame editPasswordFrame;
+    JPanel updatePasswordPanel;
+    JPanel msgPassPanel;
+    JLabel warningPassLabel;
+    JPasswordField oldPassField;
+    JPasswordField newPassField;
+    JPasswordField confPassField;
 
     private void updateFrame(){
         frame.dispose();
@@ -431,9 +471,8 @@ public class LibrarySimulatorGUI implements ActionListener {
     private void initEmployePane(){
         employePane = new JTabbedPane();
 
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new BorderLayout());
-        employePane.addTab("Recherche",panel1);
+        initRecherchePanel();
+        employePane.addTab("Recherche",recherchePanel);
 
         initAddDocumentPanel();
         employePane.addTab("Ajout Document", addDocumentPanel);
@@ -443,6 +482,12 @@ public class LibrarySimulatorGUI implements ActionListener {
 
         initAddEmployePanel();
         employePane.addTab("Ajout Employé", addEmployePanel);
+
+        initAddEmpruntPanel();
+        employePane.addTab("Emprunt", addEmpruntPanel);
+
+        initRetourPanel();
+        employePane.addTab("Retour", retourPanel);
     }
 
 
@@ -466,9 +511,9 @@ public class LibrarySimulatorGUI implements ActionListener {
     private void initEmpruntPanel(){
         empruntPanel = new JPanel(new FlowLayout());
         ArrayList<FicheEmprunt> listeEmprunts = m.empruntClient(clientLogged);
-        JPanel empruntList = new JPanel(new GridLayout(listeEmprunts.size()+1,1));
+        JPanel empruntList = new JPanel(new GridLayout(21,1));
 
-        JPanel infoDoc = new JPanel(new GridLayout(1,6));
+        JPanel infoDoc = new JPanel(new GridLayout(1,5));
         infoDoc.add(new JLabel("Titre"));
         infoDoc.add(new JLabel("Auteur"));
         infoDoc.add(new JLabel("Année"));
@@ -479,7 +524,7 @@ public class LibrarySimulatorGUI implements ActionListener {
         SimpleDateFormat dateform = new SimpleDateFormat("d/M/Y");
         for(FicheEmprunt f: listeEmprunts){
             Document doc = f.getDocument();
-            docLigne = new JPanel(new GridLayout(1,6));
+            docLigne = new JPanel(new GridLayout(1,5));
             docLigne.add(new JLabel(doc.getTitre()));
             docLigne.add(new JLabel(doc.getAuteur()));
             docLigne.add(new JLabel(Integer.toString(doc.getAnnee())));
@@ -491,6 +536,16 @@ public class LibrarySimulatorGUI implements ActionListener {
             }
             empruntList.add(docLigne);
         }
+        int ghost = (20-listeEmprunts.size());
+        for(int i=0; i<ghost; i++){
+            docLigne = new JPanel(new GridLayout(1,5));
+            docLigne.add(new JLabel(""));
+            docLigne.add(new JLabel(""));
+            docLigne.add(new JLabel(""));
+            docLigne.add(new JLabel(""));
+            docLigne.add(new JLabel(""));
+            empruntList.add(docLigne);
+        }
 
         JScrollPane scroll = new JScrollPane(empruntList);
         scroll.setPreferredSize(new Dimension(600,400));
@@ -498,12 +553,170 @@ public class LibrarySimulatorGUI implements ActionListener {
         empruntPanel.add(scroll);
     }
 
-    private void initSoldePanel(){
-        soldePanel = new JPanel(new BorderLayout());
-        String msg = "Votre solde est de "+m.getSoldeClient(clientLogged)+"€. Votre cotisation est de "+clientLogged.getCategorie().getCotisation()+"€.";
-        JLabel soldeClient = new JLabel(msg);
-        soldeClient.setHorizontalAlignment(SwingConstants.CENTER);
-        soldePanel.add(soldeClient,BorderLayout.CENTER);
+    private void initRetourPanel(){
+        retourPanel = new JPanel(new GridLayout(8,1));
+
+        msgRetour = new JPanel(new FlowLayout());
+        warningRetour = new JLabel("Document non emprunté.");
+        warningRetour.setForeground(Color.red);
+        warningRetour.setVisible(false);
+
+        confirmRetour = new JLabel("Retour enregistré.");
+        confirmRetour.setForeground(Color.green);
+        confirmRetour.setVisible(false);
+
+        if(clientLogged!=null){
+            int currentRetours = m.empruntClient(clientLogged).size();
+            restantRetour = new JLabel("Il vous reste "+currentRetours+" emprunts à retourner.");
+        } else {
+            restantRetour = new JLabel("");
+        }
+        msgRetour.add(restantRetour);
+        retourPanel.add(msgRetour);
+
+        JPanel docPanel = new JPanel(new FlowLayout());
+        JLabel docLabel = new JLabel("Document");
+        docPanel.add(docLabel);
+        retourPanel.add(docPanel);
+
+        JPanel titrePanel = new JPanel(new FlowLayout());
+        JLabel titreLabel = new JLabel("Titre :      ");
+        titreDocRetour = new JTextField(10);
+        titrePanel.add(titreLabel);
+        titrePanel.add(titreDocRetour);
+        retourPanel.add(titrePanel);
+
+        JPanel auteurPanel = new JPanel(new FlowLayout());
+        JLabel auteurLabel = new JLabel("Auteur :   ");
+        auteurDocRetour = new JTextField(10);
+        auteurPanel.add(auteurLabel);
+        auteurPanel.add(auteurDocRetour);
+        retourPanel.add(auteurPanel);
+
+        JPanel clientPanel = new JPanel(new FlowLayout());
+        JLabel clientLabel = new JLabel("Utilisateur");
+        if(clientLogged!=null){
+            clientPanel.setVisible(false);
+        }
+        clientPanel.add(clientLabel);
+        retourPanel.add(clientPanel);
+
+        JPanel nomPanel = new JPanel(new FlowLayout());
+        JLabel nomLabel = new JLabel("Nom :      ");
+        nomClientRetour = new JTextField(10);
+        if(clientLogged!=null){
+            nomClientRetour.setText(clientLogged.getNom());
+            nomPanel.setVisible(false);
+        }
+        nomPanel.add(nomLabel);
+        nomPanel.add(nomClientRetour);
+        retourPanel.add(nomPanel);
+
+        JPanel prenomPanel = new JPanel(new FlowLayout());
+        JLabel prenomLabel = new JLabel("Prenom : ");
+        prenomClientRetour = new JTextField(10);
+        if(clientLogged!=null){
+            prenomClientRetour.setText(clientLogged.getPrenom());
+            prenomPanel.setVisible(false);
+        }
+        prenomPanel.add(prenomLabel);
+        prenomPanel.add(prenomClientRetour);
+        retourPanel.add(prenomPanel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton empruntButton = new JButton("Valider");
+        empruntButton.addActionListener(this);
+        empruntButton.setActionCommand("Retour");
+        buttonPanel.add(empruntButton);
+        JButton clearButton = new JButton("Effacer");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("ClearRetour");
+        buttonPanel.add(clearButton);
+        retourPanel.add(buttonPanel);
+    }
+
+    private void initAddEmpruntPanel(){
+        addEmpruntPanel = new JPanel(new GridLayout(8,1));
+
+        msgAddEmprunt = new JPanel(new FlowLayout());
+        warningAddEmprunt = new JLabel("Document déjà emprunté.");
+        warningAddEmprunt.setForeground(Color.red);
+        warningAddEmprunt.setVisible(false);
+
+        confirmAddEmprunt = new JLabel("Emprunt enregistré.");
+        confirmAddEmprunt.setForeground(Color.green);
+        confirmAddEmprunt.setVisible(false);
+
+        if(clientLogged!=null){
+            int empruntMax = clientLogged.getCategorie().getEmpruntsMax();
+            int currentEmprunts = m.empruntClient(clientLogged).size();
+            int empruntRestant = empruntMax-currentEmprunts;
+            restantEmprunt = new JLabel("Vous pouvez encore effecuer "+empruntRestant+" emprunts");
+        } else {
+            restantEmprunt = new JLabel("");
+        }
+        msgAddEmprunt.add(restantEmprunt);
+        addEmpruntPanel.add(msgAddEmprunt);
+
+        JPanel docPanel = new JPanel(new FlowLayout());
+        JLabel docLabel = new JLabel("Document");
+        docPanel.add(docLabel);
+        addEmpruntPanel.add(docPanel);
+
+        JPanel titrePanel = new JPanel(new FlowLayout());
+        JLabel titreLabel = new JLabel("Titre :      ");
+        titreDocEmprunt = new JTextField(10);
+        titrePanel.add(titreLabel);
+        titrePanel.add(titreDocEmprunt);
+        addEmpruntPanel.add(titrePanel);
+
+        JPanel auteurPanel = new JPanel(new FlowLayout());
+        JLabel auteurLabel = new JLabel("Auteur :   ");
+        auteurDocEmprunt = new JTextField(10);
+        auteurPanel.add(auteurLabel);
+        auteurPanel.add(auteurDocEmprunt);
+        addEmpruntPanel.add(auteurPanel);
+
+        JPanel clientPanel = new JPanel(new FlowLayout());
+        JLabel clientLabel = new JLabel("Utilisateur");
+        if(clientLogged!=null){
+            clientPanel.setVisible(false);
+        }
+        clientPanel.add(clientLabel);
+        addEmpruntPanel.add(clientPanel);
+
+        JPanel nomPanel = new JPanel(new FlowLayout());
+        JLabel nomLabel = new JLabel("Nom :      ");
+        nomClientEmprunt = new JTextField(10);
+        if(clientLogged!=null){
+            nomClientEmprunt.setText(clientLogged.getNom());
+            nomPanel.setVisible(false);
+        }
+        nomPanel.add(nomLabel);
+        nomPanel.add(nomClientEmprunt);
+        addEmpruntPanel.add(nomPanel);
+
+        JPanel prenomPanel = new JPanel(new FlowLayout());
+        JLabel prenomLabel = new JLabel("Prenom : ");
+        prenomClientEmprunt = new JTextField(10);
+        if(clientLogged!=null){
+            prenomClientEmprunt.setText(clientLogged.getPrenom());
+            prenomPanel.setVisible(false);
+        }
+        prenomPanel.add(prenomLabel);
+        prenomPanel.add(prenomClientEmprunt);
+        addEmpruntPanel.add(prenomPanel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton empruntButton = new JButton("Valider");
+        empruntButton.addActionListener(this);
+        empruntButton.setActionCommand("AddEmprunt");
+        buttonPanel.add(empruntButton);
+        JButton clearButton = new JButton("Effacer");
+        clearButton.addActionListener(this);
+        clearButton.setActionCommand("ClearEmprunt");
+        buttonPanel.add(clearButton);
+        addEmpruntPanel.add(buttonPanel);
     }
 
     private void initProfilPanel(){
@@ -542,9 +755,10 @@ public class LibrarySimulatorGUI implements ActionListener {
         profilPanel.add(adresseClientPanel);
 
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton editButton = new JButton("Modifier");
+        JButton editButton = new JButton("Modifier le mot de passe");
         editButton.addActionListener(this);
-        editButton.setActionCommand("editProfil");
+        editButton.setActionCommand("editPassword");
+        //editButton.setVisible(false);
         buttonPanel.add(editButton);
         profilPanel.add(buttonPanel);
 
@@ -556,17 +770,76 @@ public class LibrarySimulatorGUI implements ActionListener {
         profilPanel.setPreferredSize(new Dimension(600, 200));
     }
 
+    private void initRecherchePanel(){
+        recherchePanel = new JPanel(new FlowLayout());
+        recherchePanel.setPreferredSize(new Dimension(600,400));
+        JPanel upperPanel = new JPanel(new GridLayout(3,1));
+        JPanel recherche = new JPanel(new FlowLayout());
+        JLabel rechercheLabel = new JLabel("Recherche");
+        rechercheField = new JTextField(20);
+        rechercheField.addActionListener(this);
+        rechercheField.setActionCommand("UpdateSearch");
+        JButton rechercheButton = new JButton("Valider");
+        rechercheButton.addActionListener(this);
+        rechercheButton.setActionCommand("UpdateSearch");
+        recherche.add(rechercheLabel);
+        recherche.add(rechercheField);
+        recherche.add(rechercheButton);
+        upperPanel.add(recherche);
+
+        JPanel categoriePanel = new JPanel(new FlowLayout());
+        ButtonGroup categorieRecherche = new ButtonGroup( );
+        clientButton = new JRadioButton("Utilisateur");
+        clientButton.addActionListener(this);
+        clientButton.setActionCommand("SearchClient");
+        documentButton = new JRadioButton("Document");
+        documentButton.addActionListener(this);
+        documentButton.setActionCommand("SearchDocument");
+        documentButton.setSelected(true);
+        categorieRecherche.add(clientButton);
+        categorieRecherche.add(documentButton);
+        categoriePanel.add(clientButton);
+        categoriePanel.add(documentButton);
+        upperPanel.add(categoriePanel);
+
+        optionPanel = new JPanel(new FlowLayout());
+
+        nomBox = new JCheckBox("Nom");
+        nomBox.setSelected(true);
+        prenomBox = new JCheckBox("Prénom");
+        prenomBox.setSelected(true);
+        audioBox = new JCheckBox("Audio");
+        audioBox.setSelected(true);
+        videoBox = new JCheckBox("Video");
+        videoBox.setSelected(true);
+        livreBox = new JCheckBox("Livre");
+        livreBox.setSelected(true);
+        optionPanel.add(audioBox);
+        optionPanel.add(videoBox);
+        optionPanel.add(livreBox);
+
+        upperPanel.add(optionPanel);
+        recherchePanel.add(upperPanel);
+
+        resultatArea = new JTextArea();
+        resultatArea.setEditable(false);
+        JScrollPane scroll = new JScrollPane(resultatArea);
+        scroll.setPreferredSize(new Dimension(600,300));
+        recherchePanel.add(scroll);
+    }
+
     private void initClientPane(){
         clientPane = new JTabbedPane();
         initEmpruntPanel();
         clientPane.addTab("Emprunts", empruntPanel);
-        JPanel panel2 = new JPanel();
-        panel2.setLayout(new BorderLayout());
-        clientPane.addTab("Recherche",panel2);
+        initRecherchePanel();
+        clientPane.addTab("Recherche",recherchePanel);
         initProfilPanel();
         clientPane.addTab("Profil", profilPanel);
-        initSoldePanel();
-        clientPane.addTab("Solde", soldePanel);
+        initAddEmpruntPanel();
+        clientPane.addTab("Emprunter", addEmpruntPanel);
+        initRetourPanel();
+        clientPane.addTab("Retour", retourPanel);
     }
 
     private void initClientPanel(String nom,String prenom){
@@ -587,9 +860,8 @@ public class LibrarySimulatorGUI implements ActionListener {
     private void initInvitePane(){
         invitePane = new JTabbedPane();
 
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new BorderLayout());
-        invitePane.addTab("Recherche",panel1);
+        initRecherchePanel();
+        invitePane.addTab("Recherche",recherchePanel);
 
         initAddClientPanel();
         invitePane.addTab("S'inscrire", addClientPanel);
@@ -658,6 +930,49 @@ public class LibrarySimulatorGUI implements ActionListener {
         connectionPanel.add(inviteButton);
     }
 
+    private void initUpdatePasswordPanel(){
+        updatePasswordPanel = new JPanel(new GridLayout(6,1));
+        msgPassPanel = new JPanel(new FlowLayout());
+        warningPassLabel = new JLabel("Ancien mdp incorrecte");
+        warningPassLabel.setVisible(false);
+        warningPassLabel.setForeground(Color.red);
+        msgPassPanel.add(warningPassLabel);
+        updatePasswordPanel.add(msgPassPanel);
+
+        JPanel lengendPassPanel = new JPanel(new FlowLayout());
+        JLabel lengendPass = new JLabel("Modifier votre mot de passe");
+        lengendPassPanel.add(lengendPass);
+        updatePasswordPanel.add(lengendPassPanel);
+
+        JPanel oldPassPanel = new JPanel(new FlowLayout());
+        JLabel oldPass = new JLabel("Ancien mdp : ");
+        oldPassField = new JPasswordField(10);
+        oldPassPanel.add(oldPass);
+        oldPassPanel.add(oldPassField);
+        updatePasswordPanel.add(oldPassPanel);
+
+        JPanel newPassPanel = new JPanel(new FlowLayout());
+        JLabel newPass = new JLabel("Nouveau mdp : ");
+        newPassField = new JPasswordField(10);
+        newPassPanel.add(newPass);
+        newPassPanel.add(newPassField);
+        updatePasswordPanel.add(newPassPanel);
+
+        JPanel confPassPanel = new JPanel(new FlowLayout());
+        JLabel confPass = new JLabel("Confirmez mdp : ");
+        confPassField = new JPasswordField(10);
+        confPassPanel.add(confPass);
+        confPassPanel.add(confPassField);
+        updatePasswordPanel.add(confPassPanel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton changePassButton = new JButton("Valider");
+        changePassButton.addActionListener(this);
+        changePassButton.setActionCommand("valideNewPassword");
+        updatePasswordPanel.add(changePassButton);
+
+    }
+
     public LibrarySimulatorGUI(String name) {
         //maybe check if save file exists load it!
         //or else a tab for loading data and saving it
@@ -673,43 +988,18 @@ public class LibrarySimulatorGUI implements ActionListener {
                 Employe emp = new Employe("admin","admin",adresse,"admin","admin");
                 Client client = new Client("Dupont","Jean", adresse, CategorieClient.ETUDIANT);
                 Audio cd = new Audio("Citizen of Glass", "Agnes Obel", 2016, "FZ6J63CJ8", "Classique", "Musique", "Classique", 40);
-                FicheEmprunt fiche = new FicheEmprunt(client, cd);
                 Audio cd2 = new Audio("Aventine", "Agnes Obel", 2013, "ZGEJ634", "Classique", "Musique", "Classique", 37);
-                FicheEmprunt fiche2 = new FicheEmprunt(client, cd2);
-                m.addDocument(cd2);
+                Video dvd = new Video("Mommy", "Xavier Dolan", 2015, "JGR345J0", "Drame", "DVD", "Drame", 125);
+                Livre livre = new Livre("Are you my mother?", "Alison Bechdel", 2006, "FZD9YE4", "Roman graphique", "Adulte", "BD", 157);
+                FicheEmprunt fiche = new FicheEmprunt(client, cd);
+
                 m.addEmploye(emp);
                 m.addClient(client);
                 m.addDocument(cd);
+                m.addDocument(cd2);
+                m.addDocument(dvd);
+                m.addDocument(livre);
                 m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche);
-                m.addFicheEmprunt(fiche2);
             }
         } catch (DataBaseException ex) {
             ex.printStackTrace();
@@ -725,6 +1015,17 @@ public class LibrarySimulatorGUI implements ActionListener {
         frame.add(connectionPanel);
         frame.pack();
 
+    }
+
+    private boolean checkChangePassword(){
+        if( !(new String(oldPassField.getPassword())).trim().equals("")
+        &&!(new String(newPassField.getPassword())).trim().equals("")
+        &&!(new String(confPassField.getPassword())).trim().equals("")
+        &&(new String(oldPassField.getPassword())).equals(clientLogged.getPassword())
+        &&(new String(newPassField.getPassword())).equals(new String(confPassField.getPassword())) ){
+            return true;
+        }
+        return false;
     }
 
     private boolean checkAddClient(){
@@ -745,8 +1046,8 @@ public class LibrarySimulatorGUI implements ActionListener {
 
     public boolean checkAddEmploye(){
         if (nomEmploye.getText().trim()=="" || prenomEmploye.getText().trim()=="" ||
-         usernameEmploye.getText().trim()=="" || passwordEmploye.getText().trim()=="" ||
-         confirmPasswordEmploye.getText().trim()=="" || numeroEmploye.getText().trim()=="" ||
+         usernameEmploye.getText().trim()=="" || (new String(passwordEmploye.getPassword())).trim()=="" ||
+         (new String(confirmPasswordEmploye.getPassword())).trim()=="" || numeroEmploye.getText().trim()=="" ||
          voieEmploye.getText().trim()=="" || rueEmploye.getText().trim()=="" ||
          postalEmploye.getText().trim()=="" || villeEmploye.getText().trim()=="" ||
          paysEmploye.getText().trim()==""){
@@ -790,7 +1091,36 @@ public class LibrarySimulatorGUI implements ActionListener {
     }
 
     public boolean checkPasswordEmploye(){
-        return passwordEmploye.getText().trim().equals(confirmPasswordEmploye.getText().trim());
+        return (new String(passwordEmploye.getPassword())).trim().equals((new String(confirmPasswordEmploye.getPassword())).trim());
+    }
+
+    private boolean checkAddEmprunt(){
+        if (titreDocEmprunt.getText().trim()=="" || auteurDocEmprunt.getText().trim()=="" ||
+         nomClientEmprunt.getText().trim()=="" || prenomClientEmprunt.getText().trim()==""){
+                return false;
+        }
+        return true;
+    }
+
+    private boolean checkRetour(){
+        if (titreDocRetour.getText().trim()=="" || auteurDocRetour.getText().trim()=="" ||
+         nomClientRetour.getText().trim()=="" || prenomClientRetour.getText().trim()==""){
+                return false;
+        }
+        return true;
+    }
+
+    private String stringSize(String str, int length) {
+        for (int i = str.length(); i<length; i++)
+            str += " ";
+        return str;
+    }
+
+    private String booleanToString(boolean b){
+        if(b){
+            return "Oui";
+        }
+        return "Non";
     }
 
     @Override
@@ -798,7 +1128,7 @@ public class LibrarySimulatorGUI implements ActionListener {
         switch (e.getActionCommand()) {
             case "connect":
                 String username = this.userField.getText();
-                String password = this.passwordField.getText();
+                String password = (new String(this.passwordField.getPassword()));
                 boolean found = false;
                 if (employeBox.isSelected()) {
                     Employe employe = m.logEmploye(username, password);
@@ -832,6 +1162,7 @@ public class LibrarySimulatorGUI implements ActionListener {
                 frame.pack();
                 break;
             case "deconnect":
+                clientLogged = null;
                 updateFrame();
                 SwingUtilities.updateComponentTreeUI(frame);
                 frame.invalidate();
@@ -860,9 +1191,6 @@ public class LibrarySimulatorGUI implements ActionListener {
                     if(!m.getListeClients().contains(client)){
                         m.addClient(client);
                         m.sauvegardeMediatheque();
-                        //-------------------------------------------------------
-                        System.out.println(m);
-                        //-------------------------------------------------------
                         warningAddClient.setVisible(false);
                         confirmAddClient.setVisible(true);
                         msgAddClient.removeAll();
@@ -893,11 +1221,10 @@ public class LibrarySimulatorGUI implements ActionListener {
                     villeEmploye.getText(), paysEmploye.getText());
                     if(checkLoginEmploye() && checkPasswordEmploye()){
                         Employe employe = new Employe(nomEmploye.getText(), prenomEmploye.getText(),
-                        adresse, usernameEmploye.getText(), passwordEmploye.getText());
+                        adresse, usernameEmploye.getText(), (new String(passwordEmploye.getPassword())));
                         if(!m.getListeEmployes().contains(employe)){
                             m.addEmploye(employe);
                             m.sauvegardeMediatheque();
-                            System.out.println(m);
                             warningAddEmploye.setVisible(false);
                             confirmAddEmploye.setVisible(true);
                             msgAddEmploye.removeAll();
@@ -954,9 +1281,6 @@ public class LibrarySimulatorGUI implements ActionListener {
                     if(document!=null && !m.getListeDocuments().contains(document)){
                         m.addDocument(document);
                         m.sauvegardeMediatheque();
-                        //-------------------------------------------------------
-                        System.out.println(m);
-                        //-------------------------------------------------------
                         warningAddDocument.setVisible(false);
                         confirmAddDocument.setVisible(true);
                         msgAddDocument.removeAll();
@@ -1042,6 +1366,273 @@ public class LibrarySimulatorGUI implements ActionListener {
                 frame.repaint();
                 frame.pack();
                 break;
+            case "AddEmprunt":
+                if(checkAddEmprunt()){
+                    Document document = m.getDocument(titreDocEmprunt.getText(), auteurDocEmprunt.getText());
+                    Client client = m.getClient(nomClientEmprunt.getText(), prenomClientEmprunt.getText());
+
+                    if(document!=null && client!=null &&(!document.getEmprunte()) && m.getListeDocuments().contains(document) && m.getListeClients().contains(client)){
+                        FicheEmprunt fiche = new FicheEmprunt(client, document);
+                        m.addFicheEmprunt(fiche);
+                        m.sauvegardeMediatheque();
+                        warningAddEmprunt.setVisible(false);
+                        restantEmprunt.setVisible(false);
+                        confirmAddEmprunt.setVisible(true);
+                        msgAddEmprunt.removeAll();
+                        msgAddEmprunt.add(confirmAddEmprunt);
+                        msgRetour.removeAll();
+                        int currentRetours = m.empruntClient(clientLogged).size();
+                        restantRetour = new JLabel("Il vous reste "+currentRetours+" emprunts à retourner.");
+                        restantRetour.setBounds(restantRetour.getX(),restantRetour.getY(),10,restantRetour.getHeight());
+                        restantRetour.setVisible(true);
+                        msgRetour.add(restantRetour);
+                        if(clientLogged!=null){
+                            initEmpruntPanel();
+                            clientPane.setComponentAt(0, empruntPanel);
+                        }
+
+                    } else {
+                        if(document==null || !m.getListeDocuments().contains(document)){
+                            warningAddEmprunt.setText("Ce document n'existe pas!");
+                        } else if(document.getEmprunte()){
+                            warningAddEmprunt.setText("Ce document n'est pas disponible!");
+                        }
+
+                        if(client==null || !m.getListeClients().contains(client)){
+                            warningAddEmprunt.setText("Cet utilisateur n'existe pas!");
+                        }
+
+                        warningAddEmprunt.setBounds(warningAddEmprunt.getX(),warningAddEmprunt.getY(),10,warningAddEmprunt.getHeight());
+                        confirmAddEmprunt.setVisible(false);
+                        restantEmprunt.setVisible(false);
+                        warningAddEmprunt.setVisible(true);
+                        msgAddEmprunt.removeAll();
+                        msgAddEmprunt.add(warningAddEmprunt);
+                    }
+                } else {
+                    warningAddEmprunt.setText("Infos incorrectes, recommencez.");
+                    warningAddEmprunt.setBounds(warningAddEmprunt.getX(),warningAddEmprunt.getY(),10,warningAddEmprunt.getHeight());
+                    confirmAddEmprunt.setVisible(false);
+                    restantEmprunt.setVisible(false);
+                    warningAddEmprunt.setVisible(true);
+                    msgAddEmprunt.removeAll();
+                    msgAddEmprunt.add(warningAddEmprunt);
+                }
+                if(clientLogged!=null){
+                    initEmpruntPanel();
+                }
+                frame.pack();
+                break;
+            case "ClearEmprunt":
+                titreDocEmprunt.setText("");
+                auteurDocEmprunt.setText("");
+                confirmAddEmprunt.setVisible(false);
+                warningAddEmprunt.setVisible(false);
+                msgAddEmprunt.removeAll();
+                if(clientLogged==null){
+                    nomClientEmprunt.setText("");
+                    prenomClientEmprunt.setText("");
+                } else {
+                    int empruntMax = clientLogged.getCategorie().getEmpruntsMax();
+                    int currentEmprunts = m.empruntClient(clientLogged).size();
+                    int empruntRestant = empruntMax-currentEmprunts;
+                    restantEmprunt = new JLabel("Vous pouvez encore effecuer "+empruntRestant+" emprunts");
+                    restantEmprunt.setBounds(restantEmprunt.getX(),restantEmprunt.getY(),10,restantEmprunt.getHeight());
+                    restantEmprunt.setVisible(true);
+                    msgAddEmprunt.add(restantEmprunt);
+                    msgRetour.removeAll();
+                    int currentRetours = m.empruntClient(clientLogged).size();
+                    restantRetour = new JLabel("Il vous reste "+currentRetours+" emprunts à retourner.");
+                    restantRetour.setBounds(restantRetour.getX(),restantRetour.getY(),10,restantRetour.getHeight());
+                    restantRetour.setVisible(true);
+                    msgRetour.add(restantRetour);
+                }
+                frame.pack();
+                break;
+            case "Retour":
+                if(checkRetour()){
+                    Document document = m.getDocument(titreDocRetour.getText(), auteurDocRetour.getText());
+                    Client client = m.getClient(nomClientRetour.getText(), prenomClientRetour.getText());
+
+                    if(document!=null && client!=null && document.getEmprunte() && m.getListeDocuments().contains(document) && m.getListeClients().contains(client)){
+                        boolean removed = m.removeFicheEmprunt(client, document);
+                        if(removed){
+                            m.sauvegardeMediatheque();
+                            warningRetour.setVisible(false);
+                            restantRetour.setVisible(false);
+                            confirmRetour.setVisible(true);
+                            msgRetour.removeAll();
+                            msgRetour.add(confirmRetour);
+                            msgAddEmprunt.removeAll();
+                            if(clientLogged!=null){
+                                int empruntMax = clientLogged.getCategorie().getEmpruntsMax();
+                                int currentEmprunts = m.empruntClient(clientLogged).size();
+                                int empruntRestant = empruntMax-currentEmprunts;
+                                restantEmprunt = new JLabel("Vous pouvez encore effecuer "+empruntRestant+" emprunts");
+                                restantEmprunt.setBounds(restantEmprunt.getX(),restantEmprunt.getY(),10,restantEmprunt.getHeight());
+                                restantEmprunt.setVisible(true);
+                                msgAddEmprunt.add(restantEmprunt);
+                                if(clientLogged!=null){
+                                    initEmpruntPanel();
+                                    clientPane.setComponentAt(0, empruntPanel);
+                                }
+
+                            }
+                        } else {
+                            if(clientLogged==null){
+                                warningRetour.setText("Ce document n'est pas emprunté par "+client.getPrenom()+" "+client.getNom());
+                            } else {
+                                warningRetour.setText("Ce document n'est pas dans vos emprunts. ");
+                            }
+                        }
+
+
+                    } else {
+                        if(document==null || !m.getListeDocuments().contains(document)){
+                            warningRetour.setText("Ce document n'existe pas!");
+                        } else if(!document.getEmprunte()){
+                            warningRetour.setText("Ce document n'est pas emprunté!");
+                        }
+
+                        if(client==null || !m.getListeClients().contains(client)){
+                            warningRetour.setText("Cet utilisateur n'existe pas!");
+                        }
+
+                        warningRetour.setBounds(warningRetour.getX(),warningRetour.getY(),10,warningRetour.getHeight());
+                        confirmRetour.setVisible(false);
+                        restantRetour.setVisible(false);
+                        warningRetour.setVisible(true);
+                        msgRetour.removeAll();
+                        msgRetour.add(warningRetour);
+                    }
+                } else {
+                    warningRetour.setText("Infos incorrectes, recommencez.");
+                    warningRetour.setBounds(warningRetour.getX(),warningRetour.getY(),10,warningRetour.getHeight());
+                    confirmRetour.setVisible(false);
+                    restantRetour.setVisible(false);
+                    warningRetour.setVisible(true);
+                    msgRetour.removeAll();
+                    msgRetour.add(warningRetour);
+                }
+                if(clientLogged!=null){
+                    initRetourPanel();
+                }
+                frame.pack();
+                break;
+            case "ClearRetour":
+                titreDocRetour.setText("");
+                auteurDocRetour.setText("");
+                confirmRetour.setVisible(false);
+                warningRetour.setVisible(false);
+                msgRetour.removeAll();
+                frame.pack();
+
+                if(clientLogged==null){
+                    nomClientRetour.setText("");
+                    prenomClientRetour.setText("");
+                } else {
+                    msgAddEmprunt.removeAll();
+                    int empruntMax = clientLogged.getCategorie().getEmpruntsMax();
+                    int currentEmprunts = m.empruntClient(clientLogged).size();
+                    int empruntRestant = empruntMax-currentEmprunts;
+                    restantEmprunt = new JLabel("Vous pouvez encore effecuer "+empruntRestant+" emprunts");
+                    restantEmprunt.setBounds(restantEmprunt.getX(),restantEmprunt.getY(),10,restantEmprunt.getHeight());
+                    restantEmprunt.setVisible(true);
+                    msgAddEmprunt.add(restantEmprunt);
+                    int currentRetours = m.empruntClient(clientLogged).size();
+                    restantRetour = new JLabel("Il vous reste "+currentRetours+" emprunts à retourner.");
+                    restantRetour.setBounds(restantRetour.getX(),restantRetour.getY(),10,restantRetour.getHeight());
+                    restantRetour.setVisible(true);
+                    msgRetour.add(restantRetour);
+                }
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "UpdateSearch":
+                String motif = rechercheField.getText();
+                ArrayList<Client> resClient = null;
+                ArrayList<Document> resDocument = null;
+                String res = "";
+                if(clientButton.isSelected()){
+                    resClient = m.getClientStartsWith(motif, nomBox.isSelected(), prenomBox.isSelected());
+                    res += " Nom                 | Prenom             | Nb d'emprunts \n";
+                    for(Client c: resClient){
+                        res += " "+stringSize(c.getNom(), 17)+" | "+stringSize(c.getPrenom(), 19)+" | "+stringSize(Integer.toString(m.empruntClient(c).size()), 13)+"\n";
+                    }
+                } else {
+                    resDocument = m.getDocumentStartsWith(motif, audioBox.isSelected(), videoBox.isSelected(), livreBox.isSelected());
+                    res += " Titre                               | Auteur                 | Emprunté | Retour   | Salle           | Rayon      \n";
+                    for(Document d: resDocument){
+                        String retourDate = "--/--/--";
+                        if(d.getEmprunte()){
+                            FicheEmprunt f = m.getFiche(d);
+                            Date date = null;
+                            if(f!=null){
+                                SimpleDateFormat dateFromatter = new SimpleDateFormat("d/M/Y");
+                                retourDate = dateFromatter.format(f.getDateFin());
+                            }
+                        }
+                        res += " "+stringSize(d.getTitre(), 31)+" | "+stringSize(d.getAuteur(), 19)+" | "+stringSize(booleanToString(d.getEmprunte()), 9)+" | "+retourDate+" | "+stringSize(d.getSalle(), 16)+" | "+stringSize(d.getRayon(), 11)+"\n";
+                    }
+                }
+                resultatArea.setText(res);
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "SearchClient":
+                optionPanel.removeAll();
+                optionPanel.add(nomBox);
+                optionPanel.add(prenomBox);
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "SearchDocument":
+                optionPanel.removeAll();
+                optionPanel.add(audioBox);
+                optionPanel.add(videoBox);
+                optionPanel.add(livreBox);
+                frame.revalidate();
+                frame.repaint();
+                frame.pack();
+                break;
+            case "editPassword":
+                editPasswordFrame = new JFrame("Modifier le mot de passe");
+                editPasswordFrame.setMinimumSize(new Dimension(300, 200));
+                editPasswordFrame.setLayout(new BorderLayout());
+                //editPasswordFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                editPasswordFrame.setVisible(true);
+                initUpdatePasswordPanel();
+                editPasswordFrame.add(updatePasswordPanel);
+                editPasswordFrame.pack();
+                break;
+            case "valideNewPassword":
+                if(checkChangePassword()){
+                    clientLogged.setPassword(new String(newPassField.getPassword()));
+                    editPasswordFrame.dispose();
+                    JOptionPane.showMessageDialog(frame, "Mot de passe modifié avec succès.", "Confirmation", JOptionPane.INFORMATION_MESSAGE);
+                    m.sauvegardeMediatheque();
+                } else {
+                    if(!(new String(oldPassField.getPassword())).equals(clientLogged.getPassword())){
+                        warningPassLabel = new JLabel("Ancien mdp incorrecte");
+                        warningPassLabel.setForeground(Color.red);
+                        warningPassLabel.setVisible(true);
+                        msgPassPanel.removeAll();
+                        msgPassPanel.add(warningPassLabel);
+                    }else if((new String(newPassField.getPassword()))!=(new String(confPassField.getPassword()))){
+                        warningPassLabel = new JLabel("Tapez le même nouveau mdp");
+                        warningPassLabel.setForeground(Color.red);
+                        warningPassLabel.setVisible(true);
+                        msgPassPanel.removeAll();
+                        msgPassPanel.add(warningPassLabel);
+                    }
+                    editPasswordFrame.revalidate();
+                    editPasswordFrame.repaint();
+                    editPasswordFrame.pack();
+                }
+                break;
             default:
                 break;
         }
@@ -1049,6 +1640,10 @@ public class LibrarySimulatorGUI implements ActionListener {
     }
 
     public static void main(String[] args) {
-        new LibrarySimulatorGUI("Pouic");
+        if(args.length>0){
+            new LibrarySimulatorGUI(args[0]);
+        } else {
+            new LibrarySimulatorGUI("Helene_Berr");
+        }
     }
 }

@@ -1,0 +1,29 @@
+################################################################################
+#                                  READ ME                                     #
+################################################################################
+# A votre première connexion il existe un employe ,login:admin, mdp:admin,     #
+# pensez à bien cocher la case employé avant de valider. Et il existe un client#
+#login: jeandupont, mdp: jeandupont. Vous pouvez aussi creer un nouveau client #
+# en cliquant sur le bouton invité. Un employe a accès à tout peu creer des    #
+# document, employés, clients et emprunts (et les retourner). En client peut   #
+# lui changer son mdp ajouter et retourner un emprunt et consulter son profil  #
+# et solde. Un invité peut se creer un compte. Et tous peuvent effectuer une   #
+# recherche sur la base de donnée de la médiathèqe.                            #
+################################################################################
+#                                Execution                                     #
+################################################################################
+# Pour executer vous pouvez lancer le jar. Par défaut le nom de la médiathèque #
+# est Helene Berr mais vous pouvez le changer en donnant le nom souhaité en    #
+# argument. La médiathèque en cours est sauvegardée à chaque modification des  #
+# données dans un fichier "MEDIATHEQUE_nomMediatheque".                        #
+################################################################################
+#                              Diagramme UML                                   #
+################################################################################
+# Un diagramme UML est à votre disposition mais celui-ci n'est pas à jour sur  #
+# le projet. Nous n'avons pas eu le temps de le mettre à jour après avoir      #
+# commencé l'interface graphique.                                              #
+################################################################################
+#                                  Auteurs                                     #
+################################################################################
+# Jessica FAVIN, Aurélie-Claire Geneviève                                      #
+################################################################################

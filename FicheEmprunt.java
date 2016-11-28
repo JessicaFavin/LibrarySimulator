@@ -17,6 +17,7 @@ public class FicheEmprunt implements Serializable {
     FicheEmprunt(Client client, Document document){
         this.client = client;
         this.document = document;
+        document.emprunte();
         Calendar calendar = Calendar.getInstance();
         this.dateDebut = calendar.getTime();
         calendar.add(Calendar.DAY_OF_MONTH,document.getDureeEmprunt());
